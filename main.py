@@ -1,5 +1,9 @@
 import cv2
 import numpy as np
+import os
+
+output_dir = 'output'
+os.makedirs(output_dir, exist_ok=True)
 
 
 def detect_gray_square(f):
@@ -51,7 +55,7 @@ def detect_gray_square(f):
         ang += 90
 
     # Рисуем контур и повёрнутый прямоугольник
-    cv2.drawContours(f, [best_contour], -1, (0, 255, 0), 2)
+    # cv2.drawContours(f, [best_contour], -1, (0, 255, 0), 2) зеленый лишний
     cv2.drawContours(f, [box], 0, (0, 0, 255), 2)
 
     # Вывод угла
@@ -63,7 +67,7 @@ def detect_gray_square(f):
     return f, ang
 
 
-video_path = 'video_1.mp4'
+video_path = 'video_3.mp4'
 cap = cv2.VideoCapture(video_path)
 
 if not cap.isOpened():
@@ -100,5 +104,11 @@ if sharpest_frame is not None:
         print(f'Angle: {angle} градусов')
 
     cv2.imshow('Detected Gray Square', pro_frame)
+    if angle is not None:
+        filename = f'frame_{sharpest_frame_number}_angle_{round(angle, 2)}.png'
+    else:
+        filename = f'frame_{sharpest_frame_number}_no_angle.png'
+    cv2.imwrite(os.path.join(output_dir, filename), pro_frame)
+    print(f'Сохранено: {filename}')
     cv2.waitKey(0)
     cv2.destroyAllWindows()
