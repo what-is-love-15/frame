@@ -55,13 +55,19 @@ def detect_gray_square(f):
         ang += 90
 
     # Рисуем контур и повёрнутый прямоугольник
-    # cv2.drawContours(f, [best_contour], -1, (0, 255, 0), 2) зеленый лишний
     cv2.drawContours(f, [box], 0, (0, 0, 255), 2)
 
-    # Вывод угла
+    # голубой не повернутый прямоугольник
     x, y, w, h = cv2.boundingRect(best_contour)
-    text_x, text_y = x + w // 2, y - 10
+    padding = 12
+    x_pad = max(0, x - padding)
+    y_pad = max(0, y - padding)
+    w_pad = min(f.shape[1] - x_pad, w + 2 * padding)
+    h_pad = min(f.shape[0] - y_pad, h + 2 * padding)
+    cv2.rectangle(f, (x_pad, y_pad), (x_pad + w_pad, y_pad + h_pad), (255, 255, 0), 2)
 
+    # Вывод угла
+    text_x, text_y = x + w // 2, y - 30
     cv2.putText(f, f"Angle: {round(ang, 3)}", (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
 
     return f, ang
@@ -92,9 +98,15 @@ while cap.isOpened():
         sharpest_frame = frame.copy()
         sharpest_frame_number = frame_number
 
+    # Показываем кадры в режиме потока (уменьши размер окна при необходимости)
+    cv2.imshow('Video stream', frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
     frame_number += 1
 
 cap.release()
+cv2.destroyAllWindows()
 print(f'Самый четкий кадр № {sharpest_frame_number}, резкость: {sharpest_value}')
 
 if sharpest_frame is not None:
