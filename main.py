@@ -28,7 +28,6 @@ def detect_gray_square(f):
     # Поиск контуров
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # h, w = f.shape[:2]
     min_area = 500
     max_area = 0.3 * w * h  # не более 30% от кадра
     candidates = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
@@ -60,7 +59,7 @@ def detect_gray_square(f):
     if ang < -45:
         ang += 90
 
-    # рисуем контур и повёрнутый прямоугольник
+    # контур и повёрнутый прямоугольник
     cv2.drawContours(f, [box], 0, (0, 0, 255), 2)
 
     # голубой не повернутый прямоугольник
@@ -92,7 +91,7 @@ def detect_gray_square(f):
     # проверка ориентации — если текст "вертикальный", разворачиваем
     if roi_thresh.shape[0] > roi_thresh.shape[1] * 1.2:
         roi_thresh = cv2.rotate(roi_thresh, cv2.ROTATE_90_CLOCKWISE)
-    # cv2.imshow("ROI for OCR", roi_thresh)
+    cv2.imshow("ROI for OCR", roi_thresh)
 
     custom_config = r'--oem 3 --psm 6'
     text = pytesseract.image_to_string(roi_thresh, config=custom_config).strip()
@@ -105,7 +104,12 @@ def detect_gray_square(f):
 
 
 video_path = 'video_1.mp4'
-cap = cv2.VideoCapture(video_path)
+use_webcam = False  # или True для доп задания
+print('Будем работать с веб-камерой?')
+answer = input().lower()
+if answer == 'yes':
+    use_webcam = True
+cap = cv2.VideoCapture(0) if use_webcam else cv2.VideoCapture(video_path)
 
 if not cap.isOpened():
     print('Ошибка: видео не открывается')
@@ -129,7 +133,6 @@ while cap.isOpened():
         sharpest_frame = frame.copy()
         sharpest_frame_number = frame_number
 
-    # Показываем кадры в режиме потока (уменьши размер окна при необходимости)
     cv2.imshow('Video stream', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
