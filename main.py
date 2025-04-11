@@ -10,14 +10,14 @@ os.makedirs(output_dir, exist_ok=True)
 
 
 def detect_gray_square(f):
-    # Переводим в HSV для поиска серого цвета
+    # переводим в HSV для поиска серого цвета
     hsv = cv2.cvtColor(f, cv2.COLOR_BGR2HSV)
 
-    # Диапазон серого цвета (настраиваемый)
+    # диапазон серого цвета (настраиваемый)
     lower_gray = np.array([80, 20, 100])
     upper_gray = np.array([120, 150, 220])
 
-    # Вычисляем средний цвет в центре кадра
+    # вычисляем средний цвет в центре кадра
     h, w = hsv.shape[:2]
     center_x, center_y = w // 2, h // 2
     square_region = hsv[center_y - 10:center_y + 10, center_x - 10:center_x + 10]
@@ -25,7 +25,7 @@ def detect_gray_square(f):
     print(f'Средний цвет квадрата (HSV): {avg_hsv}')
 
     mask = cv2.inRange(hsv, lower_gray, upper_gray)
-    # Поиск контуров
+    # поиск контуров
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     min_area = 500
@@ -44,7 +44,7 @@ def detect_gray_square(f):
     if not candidates:
         return f, None, ''
 
-        # Выбираем самый контрастный контур
+    # Выбираем самый контрастный контур
     candidates.sort(key=cv2.contourArea, reverse=True)
     best_contour = candidates[0]
 
@@ -88,7 +88,7 @@ def detect_gray_square(f):
         roi_thresh = cv2.bitwise_not(roi_thresh)
 
     roi_thresh = cv2.resize(roi_thresh, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-    # проверка ориентации — если текст "вертикальный", разворачиваем
+    # проверка ориентации — если текст вертикальный, то разворачиваем
     if roi_thresh.shape[0] > roi_thresh.shape[1] * 1.2:
         roi_thresh = cv2.rotate(roi_thresh, cv2.ROTATE_90_CLOCKWISE)
     cv2.imshow("ROI for OCR", roi_thresh)
@@ -104,7 +104,7 @@ def detect_gray_square(f):
 
 
 video_path = 'video_1.mp4'
-use_webcam = False  # или True для доп задания
+use_webcam = False  # доп задание
 print('Будем работать с веб-камерой?')
 answer = input().lower()
 if answer == 'yes':
